@@ -1,0 +1,40 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<div class="row row-cols-1 row-cols-md-4">
+    
+    {% for auction in auctions %}
+
+    <div class="col mb-3">
+    <div class="card h-100">
+        <img class="card-img-top" src="{{ auction.urlImage }}" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title">{{ auction.title }}</h5>
+          <h6 class="card-text">Price: {{ auction.startingPrice }}$</h6>
+      </div>
+      <div class="card-footer">
+          <a href="#" class="card-link">Details</a>
+          <a href="#" class="card-link">Add to Watchlist</a>
+      </div>
+        <div class="card-footer">
+          <small class="text-muted">{{ auction.startdate }}</small>
+        </div>
+      </div>
+    </div>
+
+    {% endfor %}
+
+   
+    
+</div>
+
+{% endblock %}
+
+{% block sidefilter %}
+<form action="{% url 'index' %}" method="post">
+  {% csrf_token %}
+   {{ selectform.select }}
+   <input type="submit">
+</form>
+{% endblock %}
