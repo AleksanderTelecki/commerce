@@ -21,7 +21,12 @@ def index(request):
             selected = form.cleaned_data['select']
             maxpriced = form.cleaned_data['maxprice']
             query = QueryDict(mutable=True)
-            query.__setitem__('select',selected.id)
+            
+            if selected is None:
+                query.__setitem__('select',None)
+            else:
+                query.__setitem__('select',selected.id)
+                
             query.__setitem__('maxprice',maxpriced)
             url = reverse('filter', kwargs={'filter': query.urlencode() })
             return HttpResponseRedirect(url)
@@ -35,13 +40,19 @@ def index(request):
 
 
 def sidebar_filter(request,filter):
+
     query = QueryDict(query_string=filter)
-    categoryId = int(query.get("select",''))
-    maxprice =float(query.get("maxprice",''))
+
+    stringCategoryId = query.get("select",'')
+    stringMaxPrice = query.get("maxprice",'')
+
+
+    categoryId =int(stringCategoryId) if stringCategoryId != 'None' else 9 
+    maxprice =float(stringMaxPrice) if stringMaxPrice != 'None' else None  
 
     form = SelectForm(initial = {'select': Category.objects.get(id=categoryId),'maxprice':maxprice })
     
-    if categoryId == 9:
+    if categoryId == 9 or categoryId == None:
 
         if maxprice is not None:
             auctionquery = AuctionListing.objects.all().filter(startingPrice__lte = maxprice)
