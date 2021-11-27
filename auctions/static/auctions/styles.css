@@ -8,3 +8,7 @@ body {
     object-fit: cover;
 }
 
+#id_select {
+    min-width:185px;
+}
+

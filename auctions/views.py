@@ -1,16 +1,16 @@
-from unicodedata import category
 from webbrowser import get
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django import forms
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, QueryDict
 from django.shortcuts import render
 from django.urls import reverse
 
 from .models import User,Category,AuctionListing,Comment,Bid
 
 class SelectForm(forms.Form):
-    select = forms.ModelChoiceField(queryset=Category.objects.all())
+    select = forms.ModelChoiceField(queryset=Category.objects.all(),required=False)
+    maxprice = forms.FloatField(required=False)
 
 def index(request):
 
@@ -19,9 +19,14 @@ def index(request):
 
         if form.is_valid():
             selected = form.cleaned_data['select']
-            print(selected.id)
-            url = reverse('selected', kwargs={'selectedCategory': selected.id })
+            maxpriced = form.cleaned_data['maxprice']
+            query = QueryDict(mutable=True)
+            query.__setitem__('select',selected.id)
+            query.__setitem__('maxprice',maxpriced)
+            url = reverse('filter', kwargs={'filter': query.urlencode() })
             return HttpResponseRedirect(url)
+    
+    
 
     return render(request, "auctions/index.html",{
         "auctions":AuctionListing.objects.all(),
@@ -29,18 +34,30 @@ def index(request):
     })
 
 
-def selected_category(request,selectedCategory):
-    form = SelectForm(initial = {'select': Category.objects.get(id=selectedCategory) })
+def sidebar_filter(request,filter):
+    query = QueryDict(query_string=filter)
+    categoryId = int(query.get("select",''))
+    maxprice =float(query.get("maxprice",''))
+
+    form = SelectForm(initial = {'select': Category.objects.get(id=categoryId),'maxprice':maxprice })
     
-    if selectedCategory == 9:
+    if categoryId == 9:
+
+        if maxprice is not None:
+            auctionquery = AuctionListing.objects.all().filter(startingPrice__lte = maxprice)
+
         return render(request,"auctions/index.html",{
-        "auctions":AuctionListing.objects.all(),
+        "auctions":auctionquery,
         "selectform":form
 
     })
 
-    
-    auctionquery = AuctionListing.objects.all().filter(category=selectedCategory)
+
+    if maxprice is None:
+        auctionquery = AuctionListing.objects.all().filter(category=categoryId)
+    else:
+        auctionquery = AuctionListing.objects.all().filter(category=categoryId).filter(startingPrice__lte = maxprice)
+
     return render(request,"auctions/index.html",{
         "auctions":auctionquery,
         "selectform":form
