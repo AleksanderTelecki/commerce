@@ -1,0 +1,18 @@
+{% extends "auctions/layout.html" %}
+
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col col-md-2 bg-primary rounded h-100 text-light">
+            {% block sidefilter%}
+            {% endblock %}
+        </div>
+        <div class="col col-md-10">
+          {% block lbody %}
+          {% endblock %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
