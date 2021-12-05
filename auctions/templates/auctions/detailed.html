@@ -1,0 +1,41 @@
+{% extends "auctions/layout.html" %}
+
+{% block body%}
+<h1>{{listing_item.title}}</h1>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col col-md-auto">
+            <img class="rounded border border-dark img-fluid" src="{{listing_item.urlImage}}" alt="no image">
+        </div>
+        <div class="col">
+          <form action="">
+            <div class="form-group">
+              <h3 class="m-1">{{listing_item.startingPrice}}$</h3>
+              <small class="form-text text-muted m-1">We'll never share your email with anyone else.</small>
+              <input placeholder="Your Bid" class="form-control m-1" type="text">
+              <button type="submit" class="btn btn-primary m-1">Place Bid</button>
+            </div>
+          </form>
+        </div>
+
+    </div>
+    <div class="row">
+        <h4>Description</h4>
+        <article>
+           {{listing_item.description}}
+        </article>
+        <div>
+            <small class="form-text text-muted">Date: {{listing_item.startdate}}</small>
+        </div>
+    </div>
+    <div class="row">
+        <h4>Comments:</h4>
+
+    </div>
+
+
+</div>
+{% endblock %}
+
+

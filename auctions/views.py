@@ -76,6 +76,26 @@ def sidebar_filter(request,filter):
     })
 
 
+def showListing(request,listing_id):
+
+    
+    try:
+        litem=AuctionListing.objects.get(id=listing_id)
+    except AuctionListing.DoesNotExist:
+        litem = None
+
+
+    if litem is None:
+        return render(request, "auctions/index.html",{
+        "auctions":AuctionListing.objects.all(),
+        "selectform":SelectForm()
+        })
+
+    return render(request,"auctions/detailed.html",{
+        "listing_item":litem
+        
+    })
+
 
 
 
