@@ -5,12 +5,17 @@ from django import forms
 from django.http import HttpResponse, HttpResponseRedirect, QueryDict
 from django.shortcuts import render
 from django.urls import reverse
+from django.contrib import messages
+from django.db.models import Count
 
 from .models import User,Category,AuctionListing,Comment,Bid
 
 class SelectForm(forms.Form):
     select = forms.ModelChoiceField(queryset=Category.objects.all(),required=False)
     maxprice = forms.FloatField(required=False)
+
+class BidForm(forms.Form):
+    bid = forms.FloatField(widget=forms.TextInput(attrs={'class': 'form-control m-1','placeholder': 'Your bid'}))
 
 def index(request):
 
@@ -78,7 +83,21 @@ def sidebar_filter(request,filter):
 
 def showListing(request,listing_id):
 
-    
+#TODO: CHECK BID VALUE 
+
+    if  request.method == 'POST':
+        form = BidForm(request.POST)
+
+        if form.is_valid():
+            bid = form.cleaned_data['bid']
+            if request.user.is_authenticated:
+                user = request.user
+            b = Bid(user=user, auctionlisting=AuctionListing.objects.get(id=listing_id),bid=bid)
+            b.save()
+            url = reverse('showListing', kwargs={'listing_id': listing_id })
+            return HttpResponseRedirect(url)
+
+
     try:
         litem=AuctionListing.objects.get(id=listing_id)
     except AuctionListing.DoesNotExist:
@@ -91,8 +110,30 @@ def showListing(request,listing_id):
         "selectform":SelectForm()
         })
 
+
+    bids = Bid.objects.filter(auctionlisting=litem).order_by('-bid').first()
+    bidcount = Bid.objects.filter(auctionlisting=litem).count()
+
+    bid_message=""
+
+    if request.user.is_authenticated and bids != None:
+        user = request.user
+        if user == bids.user:
+            bid_message = "Your bid is the current bid."
+
+    if bids is None:
+        bids=Bid(auctionlisting=AuctionListing.objects.get(id=listing_id),bid=litem.startingPrice) 
+        bidcount=0
+
+           
+
+
     return render(request,"auctions/detailed.html",{
-        "listing_item":litem
+        "listing_item":litem,
+        "bidform":BidForm(),
+        "bidcount":bidcount,
+        "bid":bids,
+        "bid_message":bid_message
         
     })
 
