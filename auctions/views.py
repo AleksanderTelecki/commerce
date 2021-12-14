@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect, QueryDict
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Max
 
 from .models import User,Category,AuctionListing,Comment,Bid
 
@@ -51,29 +51,16 @@ def sidebar_filter(request,filter):
     stringCategoryId = query.get("select",'')
     stringMaxPrice = query.get("maxprice",'')
 
+    categoryId =int(stringCategoryId) if stringCategoryId != 'None' else None 
+    maxprice =float(stringMaxPrice) if stringMaxPrice != 'None' else None
 
-    categoryId =int(stringCategoryId) if stringCategoryId != 'None' else 9 
-    maxprice =float(stringMaxPrice) if stringMaxPrice != 'None' else None  
-
-    form = SelectForm(initial = {'select': Category.objects.get(id=categoryId),'maxprice':maxprice })
-    
-    if categoryId == 9 or categoryId == None:
-
-        if maxprice is not None:
-            auctionquery = AuctionListing.objects.all().filter(startingPrice__lte = maxprice)
-
-        return render(request,"auctions/index.html",{
-        "auctions":auctionquery,
-        "selectform":form
-
-    })
-
-
-    if maxprice is None:
-        auctionquery = AuctionListing.objects.all().filter(category=categoryId)
+    if categoryId is None:
+        form = SelectForm(initial = {'maxprice':maxprice })
     else:
-        auctionquery = AuctionListing.objects.all().filter(category=categoryId).filter(startingPrice__lte = maxprice)
+        form = SelectForm(initial = {'select': Category.objects.get(id=categoryId),'maxprice':maxprice })
 
+    auctionquery=AuctionListing.getFilteredByCategoryAndPrice(categoryId,maxprice)
+ 
     return render(request,"auctions/index.html",{
         "auctions":auctionquery,
         "selectform":form
@@ -83,8 +70,6 @@ def sidebar_filter(request,filter):
 
 def showListing(request,listing_id):
 
-#TODO: CHECK BID VALUE 
-
     if  request.method == 'POST':
         form = BidForm(request.POST)
 
@@ -92,8 +77,13 @@ def showListing(request,listing_id):
             bid = form.cleaned_data['bid']
             if request.user.is_authenticated:
                 user = request.user
-            b = Bid(user=user, auctionlisting=AuctionListing.objects.get(id=listing_id),bid=bid)
-            b.save()
+
+                print(AuctionListing.objects.get(id=listing_id))
+                print(AuctionListing.objects.get(id=listing_id).getPrice())
+                
+                if bid > AuctionListing.objects.get(id=listing_id).getPrice():
+                    b = Bid(user=user, auctionlisting=AuctionListing.objects.get(id=listing_id),bid=bid)
+                    b.save()
             url = reverse('showListing', kwargs={'listing_id': listing_id })
             return HttpResponseRedirect(url)
 
@@ -120,12 +110,6 @@ def showListing(request,listing_id):
         user = request.user
         if user == bids.user:
             bid_message = "Your bid is the current bid."
-
-    if bids is None:
-        bids=Bid(auctionlisting=AuctionListing.objects.get(id=listing_id),bid=litem.startingPrice) 
-        bidcount=0
-
-           
 
 
     return render(request,"auctions/detailed.html",{

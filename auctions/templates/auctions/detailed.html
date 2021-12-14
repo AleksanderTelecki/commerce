@@ -12,7 +12,7 @@
           <form action="{% url 'showListing' listing_id=listing_item.id %}" method="post">
             {% csrf_token %}
             <div class="form-group">
-              <h3 class="m-1">{{ bid.bid }}$</h3>
+              <h3 class="m-1">{{ listing_item.getPrice }}$</h3>
               <small class="form-text text-muted m-1">{{bidcount}} bid(s) so far.{{ bid_message }}</small>
                 {{bidform.bid}}
               <button type="submit" class="btn btn-primary m-1">Place Bid</button>

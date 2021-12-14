@@ -13,7 +13,7 @@
         <img class="card-img-top" src="{{ auction.urlImage }}" alt="Card image cap">
         <div class="card-body">
           <h5 class="card-title">{{ auction.title }}</h5>
-          <h6 class="card-text">Price: {{ auction.startingPrice }}$</h6>
+          <h6 class="card-text">Price: {{ auction.getPrice }}$</h6>
       </div>
       <div class="card-footer">
           <a href="{% url 'showListing' listing_id=auction.id %}" class="card-link">Details</a>
