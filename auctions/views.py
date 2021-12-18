@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Count, Max
 
-from .models import User,Category,AuctionListing,Comment,Bid
+from .models import User,Category,AuctionListing,Comment,Bid,Watchlist
 
 class SelectForm(forms.Form):
     select = forms.ModelChoiceField(queryset=Category.objects.all(),required=False)
@@ -16,6 +16,9 @@ class SelectForm(forms.Form):
 
 class BidForm(forms.Form):
     bid = forms.FloatField(widget=forms.TextInput(attrs={'class': 'form-control m-1','placeholder': 'Your bid'}))
+
+class CommentForm(forms.Form):
+    comment = forms.CharField(widget=forms.Textarea)
 
 def index(request):
 
@@ -68,6 +71,44 @@ def sidebar_filter(request,filter):
     })
 
 
+def addToWatch(request,listing_id):
+    if request.user.is_authenticated:
+        user = request.user
+        if not Watchlist.objects.filter(user=user,auctionlisting=AuctionListing.objects.get(id=listing_id)).exists():
+            wlitem = Watchlist(user=user,auctionlisting=AuctionListing.objects.get(id=listing_id))
+            wlitem.save()
+            return render(request,"auctions/watchlist.html",{
+                "watchlist":Watchlist.objects.all().filter(user=user)
+                })
+        else:
+            return render(request,"auctions/watchlist.html",{
+                "watchlist":Watchlist.objects.all().filter(user=user)
+                })
+    else:
+        return render(request, "auctions/index.html",{
+        "auctions":AuctionListing.objects.all(),
+        "selectform":SelectForm()
+        })
+            
+
+
+def watchList(request):
+
+    if request.user.is_authenticated:
+        user=request.user
+        return render(request,"auctions/watchlist.html",{
+                "watchlist":Watchlist.objects.all().filter(user=user)
+                })
+    else:
+        return render(request, "auctions/index.html",{
+        "auctions":AuctionListing.objects.all(),
+        "selectform":SelectForm()
+        })
+
+    
+    
+
+
 def showListing(request,listing_id):
 
     if  request.method == 'POST':
@@ -77,9 +118,6 @@ def showListing(request,listing_id):
             bid = form.cleaned_data['bid']
             if request.user.is_authenticated:
                 user = request.user
-
-                print(AuctionListing.objects.get(id=listing_id))
-                print(AuctionListing.objects.get(id=listing_id).getPrice())
                 
                 if bid > AuctionListing.objects.get(id=listing_id).getPrice():
                     b = Bid(user=user, auctionlisting=AuctionListing.objects.get(id=listing_id),bid=bid)
@@ -97,7 +135,8 @@ def showListing(request,listing_id):
     if litem is None:
         return render(request, "auctions/index.html",{
         "auctions":AuctionListing.objects.all(),
-        "selectform":SelectForm()
+        "selectform":SelectForm(),
+        "commentform":CommentForm()
         })
 
 
@@ -115,6 +154,7 @@ def showListing(request,listing_id):
     return render(request,"auctions/detailed.html",{
         "listing_item":litem,
         "bidform":BidForm(),
+        "commentform":CommentForm(),
         "bidcount":bidcount,
         "bid":bids,
         "bid_message":bid_message

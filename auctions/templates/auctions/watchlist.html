@@ -1,0 +1,27 @@
+{% extends "auctions/layout.html" %}
+
+{% block body%}
+
+
+<div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h6 class="text-muted">WatchList</h6> 
+        <ul class="list-group">
+            {% for wlitem in watchlist %}
+          <li style="height: 60px;" class="list-group-item d-flex justify-content-between align-items-center">
+            {{ wlitem.auctionlisting.title }} | {{ wlitem.auctionlisting.getPrice }} $
+            <div class="image-parent">
+                <a href="{% url 'showListing' listing_id=wlitem.auctionlisting.id %}" class="stretched-link"></a>
+                <img src="{{ wlitem.auctionlisting.urlImage }}" class="img-fluid" alt="quixote">
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

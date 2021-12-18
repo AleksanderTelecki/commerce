@@ -12,3 +12,11 @@ body {
     min-width:185px;
 }
 
+.card-link {
+    z-index: 2;
+    position: relative;
+}
+
+.image-parent {
+    max-width: 40px;
+}

@@ -13,11 +13,14 @@
             {% csrf_token %}
             <div class="form-group">
               <h3 class="m-1">{{ listing_item.getPrice }}$</h3>
+              {% if user.is_authenticated %}
               <small class="form-text text-muted m-1">{{bidcount}} bid(s) so far.{{ bid_message }}</small>
                 {{bidform.bid}}
               <button type="submit" class="btn btn-primary m-1">Place Bid</button>
+              {% endif %}
             </div>
           </form>
+          
         </div>
 
     </div>
@@ -32,7 +35,17 @@
     </div>
     <div class="row mt-4">
         <h4>Comments</h4>
-
+    </div>
+    <div class="row mt-4">
+      {% if user.is_authenticated %}
+        <form method="post">
+          {% csrf_token %}
+          <div>
+            {{commentform.comment}}
+          </div>
+          <button type="submit" class="btn btn-primary m-1">Leave Comment</button>
+        </form>
+      {% endif %}
     </div>
 
 

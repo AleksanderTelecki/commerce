@@ -16,8 +16,11 @@
           <h6 class="card-text">Price: {{ auction.getPrice }}$</h6>
       </div>
       <div class="card-footer">
+          <a href="{% url 'showListing' listing_id=auction.id %}" class="stretched-link"></a>
           <a href="{% url 'showListing' listing_id=auction.id %}" class="card-link">Details</a>
-          <a href="#" class="card-link">Add to Watchlist</a>
+          {% if user.is_authenticated %}
+          <a href="{% url 'addToWatch' listing_id=auction.id %}" class="card-link">Add to Watchlist</a>
+          {% endif %}
       </div>
         <div class="card-footer">
           <small class="text-muted">{{ auction.startdate }}</small>
