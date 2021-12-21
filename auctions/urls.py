@@ -7,6 +7,7 @@ urlpatterns = [
     path("auction/filter/<str:filter>",views.sidebar_filter,name="filter"),
     path("auction/<int:listing_id>",views.showListing,name="showListing"),
     path("auction/addtowatch/<int:listing_id>",views.addToWatch,name="addToWatch"),
+    path("auction/search",views.search,name="search"),
     path("auction/watchlist",views.watchList,name="watchList"),
     path("auction/login", views.login_view, name="login"),
     path("auction/logout", views.logout_view, name="logout"),

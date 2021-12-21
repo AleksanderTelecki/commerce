@@ -41,8 +41,8 @@
                     {% endif %}
                 </ul>
                 <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-                <form class="form-inline">
-                  <input class="form-control mx-2 " type="search" placeholder="Search" aria-label="Search">
+                <form action="{% url 'search' %}" method="get" class="form-inline">
+                  <input class="form-control mx-2 " type="search" name="search_input" id="search_input" placeholder="Search" aria-label="Search">
                   <button class="btn btn-outline-light" type="submit">Search</button>
                 </form>
             </div>

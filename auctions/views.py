@@ -46,6 +46,17 @@ def index(request):
         "selectform":SelectForm()
     })
 
+def search(request):
+    if  request.method == 'GET':
+        search_input = request.GET['search_input']
+        print(search_input)
+
+        return render(request, "auctions/index.html",{
+        "auctions":AuctionListing.objects.all().filter(title__contains=search_input),
+        "selectform":SelectForm()
+        })
+    
+
 
 def sidebar_filter(request,filter):
 
