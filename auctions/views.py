@@ -18,7 +18,7 @@ class BidForm(forms.Form):
     bid = forms.FloatField(widget=forms.TextInput(attrs={'class': 'form-control m-1','placeholder': 'Your bid'}))
 
 class CommentForm(forms.Form):
-    comment = forms.CharField(widget=forms.Textarea)
+    comment = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}))
 
 def index(request):
 
@@ -111,9 +111,10 @@ def watchList(request):
 
 def showListing(request,listing_id):
 
-    if  request.method == 'POST':
+    if  request.method == 'POST' and request.POST.get('iscomment') != 'true':
         form = BidForm(request.POST)
-
+        
+        
         if form.is_valid():
             bid = form.cleaned_data['bid']
             if request.user.is_authenticated:
@@ -123,7 +124,17 @@ def showListing(request,listing_id):
                     b = Bid(user=user, auctionlisting=AuctionListing.objects.get(id=listing_id),bid=bid)
                     b.save()
             url = reverse('showListing', kwargs={'listing_id': listing_id })
-            return HttpResponseRedirect(url)
+            return HttpResponseRedirect(url)  
+    elif request.method == 'POST' and request.POST.get('iscomment') == 'true':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            commenttext = form.cleaned_data['comment']
+            if request.user.is_authenticated:
+                user = request.user
+                c = Comment(user=user,auctionlisting=AuctionListing.objects.get(id=listing_id),comment=commenttext)
+                c.save()
+                url = reverse('showListing', kwargs={'listing_id': listing_id })
+                return HttpResponseRedirect(url)
 
 
     try:
@@ -136,7 +147,8 @@ def showListing(request,listing_id):
         return render(request, "auctions/index.html",{
         "auctions":AuctionListing.objects.all(),
         "selectform":SelectForm(),
-        "commentform":CommentForm()
+        "commentform":CommentForm(),
+        "comments":Comment.objects.all().filter(auctionlisting=AuctionListing.objects.get(id=listing_id))
         })
 
 
@@ -155,6 +167,7 @@ def showListing(request,listing_id):
         "listing_item":litem,
         "bidform":BidForm(),
         "commentform":CommentForm(),
+        "comments":Comment.objects.all().filter(auctionlisting=AuctionListing.objects.get(id=listing_id)),
         "bidcount":bidcount,
         "bid":bids,
         "bid_message":bid_message
