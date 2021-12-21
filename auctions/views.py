@@ -20,6 +20,13 @@ class BidForm(forms.Form):
 class CommentForm(forms.Form):
     comment = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}))
 
+class ListingForm(forms.Form):
+    title = forms.CharField(max_length=64,widget=forms.TextInput(attrs={'class': 'form-control'}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}))
+    urlImage = forms.URLField(required=False,widget=forms.TextInput(attrs={'style': 'min-width: 50%','class': 'form-control'}))
+    category = forms.ModelChoiceField(queryset=Category.objects.all(),required=True)
+    
+
 def index(request):
 
     if  request.method == 'POST':
@@ -56,7 +63,10 @@ def search(request):
         "selectform":SelectForm()
         })
     
-
+def createListing(request):
+    return render(request, "auctions/createlisting.html",{
+        "listingform":ListingForm()
+        })
 
 def sidebar_filter(request,filter):
 

@@ -1,0 +1,35 @@
+{% extends "auctions/layout.html" %}
+{% load widget_tweaks %}
+
+{% block body%}
+
+<form action="{% url 'createListing' %}" method="post">
+<div class="container-fluid">
+    <h4>Title</h4>
+    <div>
+        {{listingform.title}}
+    </div>
+    
+    <h4>Description</h4>
+    <div>
+        {{listingform.description}}
+    </div>
+
+    <h4>Image Url</h4>
+    <div>
+        {{listingform.urlImage}}
+    </div>
+
+    <h4>Category</h4>
+    <div>
+        {% render_field listingform.category class+="form-control" style+="width:50%" %}
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-primary mt-2">Create Listing</button>
+    </div>
+</div>
+</form>
+
+
+{% endblock %}

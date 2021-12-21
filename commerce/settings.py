@@ -36,6 +36,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'auctions',
     'django.contrib.admin',
+    'widget_tweaks',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
