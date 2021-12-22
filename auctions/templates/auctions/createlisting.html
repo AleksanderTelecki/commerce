@@ -4,6 +4,7 @@
 {% block body%}
 
 <form action="{% url 'createListing' %}" method="post">
+    {% csrf_token %}
 <div class="container-fluid">
     <h4>Title</h4>
     <div>
@@ -23,6 +24,11 @@
     <h4>Category</h4>
     <div>
         {% render_field listingform.category class+="form-control" style+="width:50%" %}
+    </div>
+
+    <h4>Price</h4>
+    <div>
+        {% render_field listingform.price style+="width:50%" %}
     </div>
 
     <div>

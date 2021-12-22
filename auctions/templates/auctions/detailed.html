@@ -20,7 +20,17 @@
               {% endif %}
             </div>
           </form>
-          
+          <details>
+            <summary>Owner Info</summary>
+            <div>
+              <div class="text-truncate">
+                Email: {{ listing_item.owner.email }}
+              </div>
+              <div class="text-truncate">
+                Username: {{ listing_item.owner.username }}
+              </div>
+            </div>
+        </details>
         </div>
 
     </div>

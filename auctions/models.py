@@ -18,10 +18,10 @@ class Category(models.Model):
 
 class AuctionListing(models.Model):
     title = models.CharField(max_length=64)
-    description = models.TextField(max_length=512)
+    description = models.TextField()
     startdate = models.DateTimeField(auto_now_add=False)
     closeDate = models.DateTimeField(blank=True,null=True)
-    urlImage = models.URLField(max_length=200,blank=True)
+    urlImage = models.URLField(blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE,related_name="auctionCategory")
     owner = models.ForeignKey(User,on_delete=models.CASCADE,related_name="owner")
     

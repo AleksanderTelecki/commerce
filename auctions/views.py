@@ -1,3 +1,4 @@
+from turtle import title
 from webbrowser import get
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
@@ -7,6 +8,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib import messages
 from django.db.models import Count, Max
+from datetime import datetime
 
 from .models import User,Category,AuctionListing,Comment,Bid,Watchlist
 
@@ -25,6 +27,7 @@ class ListingForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}))
     urlImage = forms.URLField(required=False,widget=forms.TextInput(attrs={'style': 'min-width: 50%','class': 'form-control'}))
     category = forms.ModelChoiceField(queryset=Category.objects.all(),required=True)
+    price = forms.FloatField(widget=forms.TextInput(attrs={'class': 'form-control'}))
     
 
 def index(request):
@@ -64,6 +67,22 @@ def search(request):
         })
     
 def createListing(request):
+
+    form = ListingForm(request.POST)
+    if  request.method == 'POST' and request.user.is_authenticated and form.is_valid():
+        user = request.user
+        auctionListing = AuctionListing(title=form.cleaned_data['title'],description=form.cleaned_data['description'],startdate=datetime.now(),urlImage=form.cleaned_data['urlImage'],
+        category=form.cleaned_data['category'],owner=user,status='S')
+        auctionListing.save()
+
+        startingprice=Bid(user=user,auctionlisting=AuctionListing.objects.get(id=auctionListing.id),bid=form.cleaned_data['price'])
+        startingprice.save()
+
+        return render(request,"auctions/mylistings.html",{
+                "mylistingslist":AuctionListing.objects.all().filter(owner=user)
+                })
+
+
     return render(request, "auctions/createlisting.html",{
         "listingform":ListingForm()
         })
@@ -126,8 +145,44 @@ def watchList(request):
         "selectform":SelectForm()
         })
 
+def mylistings(request):
+
+    if request.user.is_authenticated:
+        user=request.user
+        return render(request,"auctions/mylistings.html",{
+                "mylistingslist":AuctionListing.objects.all().filter(owner=user)
+                })
+    else:
+        return render(request, "auctions/index.html",{
+        "auctions":AuctionListing.objects.all(),
+        "selectform":SelectForm()
+        })
+
+    
+
+def closelisting(request,listing_id):
+
+    if request.user.is_authenticated:
+        user=request.user
+
+        auctionListing = AuctionListing.objects.get(id=listing_id)
+        if auctionListing.owner == user:
+            auctionListing.delete()
+        
+        return render(request,"auctions/mylistings.html",{
+                "mylistingslist":AuctionListing.objects.all().filter(owner=user)
+                })    
+    else:
+        return render(request, "auctions/index.html",{
+        "auctions":AuctionListing.objects.all(),
+        "selectform":SelectForm()
+        })
+
     
     
+
+    
+
 
 
 def showListing(request,listing_id):
@@ -204,7 +259,10 @@ def login_view(request):
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
+        print(username)
+        print(password)
         user = authenticate(request, username=username, password=password)
+        print(user)
 
         # Check if authentication successful
         if user is not None:

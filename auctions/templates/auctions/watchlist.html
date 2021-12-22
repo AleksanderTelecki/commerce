@@ -13,7 +13,7 @@
             {{ wlitem.auctionlisting.title }} | {{ wlitem.auctionlisting.getPrice }} $
             <div class="image-parent">
                 <a href="{% url 'showListing' listing_id=wlitem.auctionlisting.id %}" class="stretched-link"></a>
-                <img src="{{ wlitem.auctionlisting.urlImage }}" class="img-fluid" alt="quixote">
+                <img src="{{ wlitem.auctionlisting.urlImage }}" class="img-fluid rounded" alt="quixote">
             </div>
           </li>
           {% endfor %}
